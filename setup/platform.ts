@@ -107,6 +107,10 @@ export function getNodePath(): string {
 }
 
 export function commandExists(name: string): boolean {
+  // Reject names with shell metacharacters to prevent command injection
+  if (!/^[a-zA-Z0-9._-]+$/.test(name)) {
+    return false;
+  }
   try {
     execSync(`command -v ${name}`, { stdio: 'ignore' });
     return true;
