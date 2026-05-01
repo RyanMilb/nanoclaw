@@ -57,9 +57,9 @@ export function readonlyMountArgs(
   return ['-v', `${hostPath}:${containerPath}:ro`];
 }
 
-/** Returns the shell command to stop a container by name. */
-export function stopContainer(name: string): string {
-  return `${CONTAINER_RUNTIME_BIN} stop ${name}`;
+/** Returns the argument list to stop a container by name (safe for execFile/spawn). */
+export function stopContainer(name: string): string[] {
+  return [CONTAINER_RUNTIME_BIN, 'stop', name];
 }
 
 /** Ensure the container runtime is running, starting it if needed. */
