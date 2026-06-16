@@ -51,11 +51,11 @@ export function computeNextRun(task: ScheduledTask): string | null {
       return new Date(now + 60_000).toISOString();
     }
     // Anchor to the scheduled time, not now, to prevent drift.
-    // Skip past any missed intervals so we always land in the future.
-    let next = new Date(task.next_run!).getTime() + ms;
-    while (next <= now) {
-      next += ms;
-    }
+    // Skip past any missed intervals so we always land strictly in the future.
+    // O(1) math instead of a loop to avoid CPU spin with tiny intervals.
+    const base = new Date(task.next_run!).getTime();
+    const skipped = Math.floor((now - base) / ms) + 1;
+    const next = base + Math.max(1, skipped) * ms;
     return new Date(next).toISOString();
   }
 
