@@ -401,7 +401,13 @@ export async function runContainerAgent(
 
     let timedOut = false;
     let hadStreamingOutput = false;
-    const configTimeout = group.containerConfig?.timeout || CONTAINER_TIMEOUT;
+    // Cap at 24 h to prevent a crafted containerConfig.timeout from keeping a
+    // runaway container alive indefinitely and bypassing the kill signal.
+    const MAX_CONFIGURABLE_TIMEOUT = 24 * 60 * 60 * 1000;
+    const configTimeout = Math.min(
+      group.containerConfig?.timeout || CONTAINER_TIMEOUT,
+      MAX_CONFIGURABLE_TIMEOUT,
+    );
     // Grace period: hard timeout must be at least IDLE_TIMEOUT + 30s so the
     // graceful _close sentinel has time to trigger before the hard kill fires.
     const timeoutMs = Math.max(configTimeout, IDLE_TIMEOUT + 30_000);

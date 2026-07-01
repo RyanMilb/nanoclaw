@@ -215,6 +215,13 @@ function isValidContainerPath(containerPath: string): boolean {
     return false;
   }
 
+  // Must not contain colons — Docker interprets colon-delimited segments in
+  // -v HOST:CONTAINER[:OPTIONS] as mount options (e.g. ":ro", ":z", ":shared").
+  // A colon in the container path would corrupt the -v argument structure.
+  if (containerPath.includes(':')) {
+    return false;
+  }
+
   return true;
 }
 
