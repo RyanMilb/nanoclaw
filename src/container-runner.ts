@@ -199,7 +199,7 @@ function buildVolumeMounts(
   });
 
   // Additional mounts validated against external allowlist (tamper-proof from containers)
-  if (group.containerConfig?.additionalMounts) {
+  if (Array.isArray(group.containerConfig?.additionalMounts)) {
     const validatedMounts = validateAdditionalMounts(
       group.containerConfig.additionalMounts,
       group.name,
@@ -404,8 +404,11 @@ export async function runContainerAgent(
     // Cap at 24 h to prevent a crafted containerConfig.timeout from keeping a
     // runaway container alive indefinitely and bypassing the kill signal.
     const MAX_CONFIGURABLE_TIMEOUT = 24 * 60 * 60 * 1000;
+    const rawTimeout = group.containerConfig?.timeout;
     const configTimeout = Math.min(
-      group.containerConfig?.timeout || CONTAINER_TIMEOUT,
+      Number.isFinite(rawTimeout) && rawTimeout > 0
+        ? rawTimeout
+        : CONTAINER_TIMEOUT,
       MAX_CONFIGURABLE_TIMEOUT,
     );
     // Grace period: hard timeout must be at least IDLE_TIMEOUT + 30s so the
