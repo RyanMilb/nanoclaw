@@ -273,6 +273,15 @@ export function validateMount(
     };
   }
 
+  // Colons in the host path corrupt the Docker -v HOST:CONTAINER[:OPTIONS] argument
+  // structure (same rationale as the containerPath colon check above).
+  if (realPath.includes(':')) {
+    return {
+      allowed: false,
+      reason: `Host path contains a colon which would corrupt the Docker -v argument: "${realPath}"`,
+    };
+  }
+
   // Check against blocked patterns
   const blockedMatch = matchesBlockedPattern(
     realPath,
