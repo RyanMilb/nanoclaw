@@ -41,6 +41,7 @@ export function startIpcWatcher(deps: IpcDeps): void {
     let groupFolders: string[];
     try {
       groupFolders = fs.readdirSync(ipcBaseDir).filter((f) => {
+        if (!isValidGroupFolder(f)) return false;
         const stat = fs.statSync(path.join(ipcBaseDir, f));
         return stat.isDirectory() && f !== 'errors';
       });
